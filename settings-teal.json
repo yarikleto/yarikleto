@@ -1,0 +1,17 @@
+{
+  "type": "normal",
+  "fileName": "profile-teal.svg",
+  "backgroundColor": "#ffffff",
+  "foregroundColor": "#333333",
+  "strongColor": "#2D8A8A",
+  "weakColor": "#aaaaaa",
+  "radarColor": "#5CC8C8",
+  "growingAnimation": true,
+  "contribColors": [
+    "#ebedf0",
+    "#b2dfdb",
+    "#80cbc4",
+    "#4db6ac",
+    "#2D8A8A"
+  ]
+}

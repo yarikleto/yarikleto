@@ -9,11 +9,5 @@
 </p>
 
 <p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=yarikleto&theme=flat&no-bg=true&no-frame=true&column=-1&title_color=5CC8C8" />
+  <img src="./profile-3d-contrib/profile-teal.svg" alt="3D contribution skyline" />
 </p>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-green.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green-animate.svg" />
-  <img alt="3D contribution skyline" src="./profile-3d-contrib/profile-green-animate.svg" />
-</picture>
