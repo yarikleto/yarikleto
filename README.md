@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=22&duration=3000&pause=1000&color=5CC8C8&center=true&vCenter=true&random=false&width=440&lines=Software+Engineer+%40+Wix;Building+tools+for+developers" alt="Typing SVG" /></a>
+  <img src="./header.svg" alt="Yarik Leto" width="100%" />
 </p>
 
 <p align="center">
