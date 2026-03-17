@@ -22,12 +22,43 @@ jobs:
       - name: Remove progress bar
         run: |
           cd dist
-          for f in github-snake.svg github-snake-dark.svg; do
-            sed -i 's/<rect class="u[^"]*"[^/]*\/>//g' "$f"
-            sed -i 's/\.u[^}]*}//g' "$f"
-            sed -i 's/@keyframes u[0-9][^}]*}//g' "$f"
-            sed -i 's/viewBox="-16 -32 880 192" width="880" height="192"/viewBox="-16 -32 880 140" width="880" height="140"/g' "$f"
-          done
+          python3 << 'PYEOF'
+          import re, glob
+
+          def remove_keyframes(content, prefix):
+              result = content
+              while True:
+                  match = re.search(rf'@keyframes {prefix}\d', result)
+                  if not match:
+                      break
+                  idx = match.start()
+                  brace_start = result.index('{', idx)
+                  depth = 0
+                  end = brace_start
+                  for j in range(brace_start, len(result)):
+                      if result[j] == '{':
+                          depth += 1
+                      elif result[j] == '}':
+                          depth -= 1
+                          if depth == 0:
+                              end = j + 1
+                              break
+                  result = result[:idx] + result[end:]
+              return result
+
+          for f in glob.glob("github-snake*.svg"):
+              with open(f) as fh:
+                  c = fh.read()
+              c = remove_keyframes(c, 'u')
+              c = re.sub(r'<rect class="u[^"]*"[^/]*/>', '', c)
+              c = re.sub(r'\.u\.[^}]*\}', '', c)
+              c = re.sub(r'\.u\{[^}]*\}', '', c)
+              c = c.replace('viewBox="-16 -32 880 192" width="880" height="192"',
+                            'viewBox="-16 -32 880 140" width="880" height="140"')
+              with open(f, 'w') as fh:
+                  fh.write(c)
+              print(f"Cleaned {f}: braces {{ {c.count('{')} }} {c.count('}')}")
+          PYEOF
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:
