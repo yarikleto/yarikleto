@@ -26,6 +26,7 @@ jobs:
             sed -i 's/<rect class="u[^"]*"[^/]*\/>//g' "$f"
             sed -i 's/\.u[^}]*}//g' "$f"
             sed -i 's/@keyframes u[0-9][^}]*}//g' "$f"
+            sed -i 's/viewBox="-16 -32 880 192" width="880" height="192"/viewBox="-16 -32 880 140" width="880" height="140"/g' "$f"
           done
 
       - uses: crazy-max/ghaction-github-pages@v4
