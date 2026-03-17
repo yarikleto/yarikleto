@@ -3,9 +3,11 @@
 </p>
 
 <p align="center">
-  <samp>
-    <a href="https://www.linkedin.com/in/yarik-leto">linkedin</a> · <a href="https://github.com/yarikleto?tab=repositories">repos</a> · <a href="https://github.com/yarikleto?tab=stars">stars</a>
-  </samp>
+  <a href="https://www.linkedin.com/in/yarik-leto"><img src="https://img.shields.io/badge/linkedin-5CC8C8?style=flat&logo=linkedin&logoColor=white" alt="linkedin" /></a>
+  &nbsp;
+  <a href="https://github.com/yarikleto?tab=repositories"><img src="https://img.shields.io/badge/repos-5CC8C8?style=flat&logo=github&logoColor=white" alt="repos" /></a>
+  &nbsp;
+  <a href="https://github.com/yarikleto?tab=stars"><img src="https://img.shields.io/badge/stars-5CC8C8?style=flat&logo=github&logoColor=white" alt="stars" /></a>
 </p>
 
 <br>
