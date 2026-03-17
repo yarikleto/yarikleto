@@ -12,7 +12,9 @@
   <img src="https://streak-stats.demolab.com?user=yarikleto&theme=transparent&hide_border=true&ring=5CC8C8&fire=5CC8C8&currStreakLabel=5CC8C8&sideLabels=888&sideNums=CCC&currStreakNum=CCC&dates=555" />
 </p>
 
-<br>
+<p align="center">
+  <img src="https://github-profile-trophy.vercel.app/?username=yarikleto&theme=flat&no-bg=true&no-frame=true&column=-1&title_color=5CC8C8" />
+</p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/yarikleto/yarikleto/output/github-snake-dark.svg?v=3" />
