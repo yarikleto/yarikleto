@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/yarik-leto"><img src="https://img.shields.io/badge/linkedin-5CC8C8?style=flat&logo=linkedin&logoColor=white" alt="linkedin" /></a>
+  <a href="https://www.linkedin.com/in/yarik-leto"><img src="https://img.shields.io/badge/linkedin-%235CC8C8?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0yMC40NyAySDMuNTNhMS40NSAxLjQ1IDAgMCAwLTEuNDcgMS40M3YxNy4xNEExLjQ1IDEuNDUgMCAwIDAgMy41MyAyMmgxNi45NGExLjQ1IDEuNDUgMCAwIDAgMS40Ny0xLjQzVjMuNDNBMS40NSAxLjQ1IDAgMCAwIDIwLjQ3IDJaTTguMDkgMTguNzRoLTN2LTloM3ptLTEuNS0xMC4yYTEuNzQgMS43NCAwIDEgMSAxLjc0LTEuNzQgMS43NCAxLjc0IDAgMCAxLTEuNzQgMS43NHptMTIuMzUgMTAuMmgtM3YtNC4zOGMwLTEuMDQtLjAyLTIuMzgtMS40NS0yLjM4LTEuNDUgMC0xLjY3IDEuMTMtMS42NyAyLjN2NC40NmgtM3YtOWgyLjg4djEuMjNoLjA0YTMuMTYgMy4xNiAwIDAgMSAyLjg0LTEuNTZjMy4wNCAwIDMuNiAyIDMuNiA0LjU5eiIvPjwvc3ZnPg==" alt="linkedin" /></a>
   &nbsp;
-  <a href="https://github.com/yarikleto?tab=repositories"><img src="https://img.shields.io/badge/repos-5CC8C8?style=flat&logo=github&logoColor=white" alt="repos" /></a>
+  <a href="https://github.com/yarikleto?tab=repositories"><img src="https://img.shields.io/badge/repos-%235CC8C8?style=flat-square&logo=bookshelf&logoColor=white" alt="repos" /></a>
   &nbsp;
-  <a href="https://github.com/yarikleto?tab=stars"><img src="https://img.shields.io/badge/stars-5CC8C8?style=flat&logo=github&logoColor=white" alt="stars" /></a>
+  <a href="https://github.com/yarikleto?tab=stars"><img src="https://img.shields.io/badge/★_stars-%235CC8C8?style=flat-square" alt="stars" /></a>
 </p>
 
 <br>
