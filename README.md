@@ -2,11 +2,7 @@
   <img src="./header.svg" alt="Yarik Leto" width="100%" />
 </p>
 
-<p align="center">
-  <a href="https://www.linkedin.com/in/yarik-leto"><img src="https://img.shields.io/badge/linkedin-%235CC8C8?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0yMC40NyAySDMuNTNhMS40NSAxLjQ1IDAgMCAwLTEuNDcgMS40M3YxNy4xNEExLjQ1IDEuNDUgMCAwIDAgMy41MyAyMmgxNi45NGExLjQ1IDEuNDUgMCAwIDAgMS40Ny0xLjQzVjMuNDNBMS40NSAxLjQ1IDAgMCAwIDIwLjQ3IDJaTTguMDkgMTguNzRoLTN2LTloM3ptLTEuNS0xMC4yYTEuNzQgMS43NCAwIDEgMSAxLjc0LTEuNzQgMS43NCAxLjc0IDAgMCAxLTEuNzQgMS43NHptMTIuMzUgMTAuMmgtM3YtNC4zOGMwLTEuMDQtLjAyLTIuMzgtMS40NS0yLjM4LTEuNDUgMC0xLjY3IDEuMTMtMS42NyAyLjN2NC40NmgtM3YtOWgyLjg4djEuMjNoLjA0YTMuMTYgMy4xNiAwIDAgMSAyLjg0LTEuNTZjMy4wNCAwIDMuNiAyIDMuNiA0LjU5eiIvPjwvc3ZnPg==" alt="linkedin" /></a>
-</p>
 
-<br>
 
 <p align="center">
   <img src="https://streak-stats.demolab.com?user=yarikleto&theme=transparent&hide_border=true&ring=5CC8C8&fire=5CC8C8&currStreakLabel=5CC8C8&sideLabels=888&sideNums=CCC&currStreakNum=CCC&dates=555" />
@@ -17,7 +13,7 @@
 </p>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/yarikleto/yarikleto/output/github-snake-dark.svg?v=3" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/yarikleto/yarikleto/output/github-snake.svg?v=3" />
-  <img alt="github contribution snake animation" src="https://raw.githubusercontent.com/yarikleto/yarikleto/output/github-snake.svg?v=3" />
+  <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-green.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green-animate.svg" />
+  <img alt="3D contribution skyline" src="./profile-3d-contrib/profile-green-animate.svg" />
 </picture>
