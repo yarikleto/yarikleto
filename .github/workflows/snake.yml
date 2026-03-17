@@ -23,7 +23,9 @@ jobs:
         run: |
           cd dist
           for f in github-snake.svg github-snake-dark.svg; do
-            sed -i 's/<rect[^>]*height="[2-5]"[^>]*width="[0-9]*"[^/]*\/>//g' "$f"
+            sed -i 's/<rect class="u[^"]*"[^/]*\/>//g' "$f"
+            sed -i 's/\.u[^}]*}//g' "$f"
+            sed -i 's/@keyframes u[0-9][^}]*}//g' "$f"
           done
 
       - uses: crazy-max/ghaction-github-pages@v4
