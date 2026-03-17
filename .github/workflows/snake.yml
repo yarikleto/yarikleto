@@ -19,25 +19,11 @@ jobs:
             dist/github-snake.svg?color_snake=#5CC8C8&color_dots=#ebedf0,#b2dfdb,#80cbc4,#4db6ac,#5CC8C8
             dist/github-snake-dark.svg?color_snake=#5CC8C8&color_dots=#161b22,#1a3a3a,#2D8A8A,#44AAAA,#5CC8C8
 
-      - name: Remove progress bar from SVGs
+      - name: Remove progress bar
         run: |
-          for f in dist/github-snake.svg dist/github-snake-dark.svg; do
-            sed -i '/<svg/,/<\/svg>/{
-              /<rect[^>]*id="progress[^"]*"/d
-              /<rect[^>]*y="[0-9]*"[^>]*height="[34]"[^>]*rx="1"/d
-            }' "$f"
-            # Remove the last <rect> group which is the progress bar
-            python3 -c "
-import re, sys
-with open('$f') as file:
-    content = file.read()
-# Remove the progress bar - it's a rect near the bottom with small height
-content = re.sub(r'<rect[^>]*class=\"progress\"[^/]*/>', '', content)
-# Also try removing by pattern - progress bars are thin rects at the bottom
-content = re.sub(r'<rect[^>]*height=\"[2-5]\"[^>]*width=\"[0-9]+\"[^/]*/>\s*</svg>', '</svg>', content)
-with open('$f', 'w') as file:
-    file.write(content)
-"
+          cd dist
+          for f in github-snake.svg github-snake-dark.svg; do
+            sed -i 's/<rect[^>]*height="[2-5]"[^>]*width="[0-9]*"[^/]*\/>//g' "$f"
           done
 
       - uses: crazy-max/ghaction-github-pages@v4
