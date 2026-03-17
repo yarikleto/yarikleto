@@ -11,5 +11,5 @@
 <br>
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=yarikleto&theme=github-dark-blue&hide_border=true" />
+  <img src="https://streak-stats.demolab.com?user=yarikleto&theme=transparent&hide_border=true&ring=58A6FF&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=888&sideNums=CCC&currStreakNum=CCC&dates=555" />
 </p>
