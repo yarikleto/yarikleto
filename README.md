@@ -11,6 +11,6 @@
 <br>
 
 <p align="center">
-  <img height="170" src="https://github-readme-stats.vercel.app/api?username=yarikleto&show_icons=true&theme=github_dark&hide_border=true&hide_title=true&hide_rank=true&icon_color=58A6FF" />
+  <img height="170" src="https://github-readme-stats.vercel.app/api?username=yarikleto&show_icons=true&theme=github_dark&hide_border=true&hide_title=true&hide_rank=true&icon_color=58A6FF&include_all_commits=true&count_private=true" />
   <img height="170" src="https://streak-stats.demolab.com?user=yarikleto&theme=github-dark-blue&hide_border=true" />
 </p>
