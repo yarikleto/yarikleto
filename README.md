@@ -9,5 +9,5 @@
 </p>
 
 <p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=yarikleto&theme=flat&no-bg=true&no-frame=true&column=-1&title_color=5CC8C8" />
+  
 </p>
