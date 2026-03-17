@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2D8A8A"/>
+      <stop offset="50%" stop-color="#5CC8C8"/>
+      <stop offset="100%" stop-color="#2D8A8A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Animated wave layers -->
+  <path fill="none" stroke="#5CC8C820" stroke-width="1.5">
+    <animate attributeName="d" dur="8s" repeatCount="indefinite" values="
+      M0,100 C100,60 200,140 300,100 C400,60 500,140 600,100 C700,60 800,100 800,100;
+      M0,100 C100,140 200,60 300,100 C400,140 500,60 600,100 C700,140 800,100 800,100;
+      M0,100 C100,60 200,140 300,100 C400,60 500,140 600,100 C700,60 800,100 800,100"/>
+  </path>
+
+  <path fill="none" stroke="#5CC8C830" stroke-width="1.5">
+    <animate attributeName="d" dur="6s" repeatCount="indefinite" values="
+      M0,100 C100,130 200,70 300,100 C400,130 500,70 600,100 C700,130 800,100 800,100;
+      M0,100 C100,70 200,130 300,100 C400,70 500,130 600,100 C700,70 800,100 800,100;
+      M0,100 C100,130 200,70 300,100 C400,130 500,70 600,100 C700,130 800,100 800,100"/>
+  </path>
+
+  <path fill="none" stroke="#5CC8C850" stroke-width="1.5">
+    <animate attributeName="d" dur="10s" repeatCount="indefinite" values="
+      M0,100 C150,70 250,130 400,100 C550,70 650,130 800,100;
+      M0,100 C150,130 250,70 400,100 C550,130 650,70 800,100;
+      M0,100 C150,70 250,130 400,100 C550,70 650,130 800,100"/>
+  </path>
+
+  <!-- Floating particles -->
+  <circle r="2" fill="#5CC8C860">
+    <animateMotion dur="12s" repeatCount="indefinite" path="M50,80 C200,40 400,120 750,70"/>
+    <animate attributeName="opacity" dur="12s" repeatCount="indefinite" values="0;0.6;0.6;0"/>
+  </circle>
+  <circle r="1.5" fill="#5CC8C860">
+    <animateMotion dur="9s" repeatCount="indefinite" path="M750,120 C600,60 300,140 50,90"/>
+    <animate attributeName="opacity" dur="9s" repeatCount="indefinite" values="0;0.5;0.5;0"/>
+  </circle>
+  <circle r="2.5" fill="#5CC8C840">
+    <animateMotion dur="15s" repeatCount="indefinite" path="M100,130 C300,50 500,150 700,80"/>
+    <animate attributeName="opacity" dur="15s" repeatCount="indefinite" values="0;0.4;0.4;0"/>
+  </circle>
+  <circle r="1" fill="#5CC8C870">
+    <animateMotion dur="7s" repeatCount="indefinite" path="M400,60 C550,130 650,70 780,110"/>
+    <animate attributeName="opacity" dur="7s" repeatCount="indefinite" values="0;0.7;0.7;0"/>
+  </circle>
+
+  <!-- Name text -->
+  <text x="400" y="88" text-anchor="middle" font-family="monospace" font-size="32" font-weight="bold" fill="url(#g1)">
+    Yarik Leto
+  </text>
+
+  <!-- Subtitle -->
+  <text x="400" y="120" text-anchor="middle" font-family="monospace" font-size="14" fill="#5CC8C8" opacity="0.7">
+    Software Engineer · Building tools for developers
+  </text>
+
+  <!-- Subtle horizontal lines -->
+  <line x1="250" y1="140" x2="550" y2="140" stroke="#5CC8C8" stroke-width="0.5" opacity="0.2"/>
+</svg>
