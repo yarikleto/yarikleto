@@ -7,7 +7,11 @@
 <br>
 
 <p align="center">
-  <samp>currently building <a href="https://github.com/yarikleto/claude-profile">claude-profile</a> — switch Claude Code configs with one command</samp>
+  <samp>
+    <a href="https://github.com/yarikleto/claude-profile">claude-profile</a> — switch Claude Code configs with one command<br>
+    <a href="https://github.com/yarikleto/ScreenPing">ScreenPing</a> — watch a screen region, get a Telegram ping when it changes<br>
+    <a href="https://github.com/yarikleto/claude-teacher-plugin">claude-teacher-plugin</a> — AI tutor that guides learning and adapts to your level
+  </samp>
 </p>
 
 <br>
