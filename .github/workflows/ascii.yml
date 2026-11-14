@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Build header and contribution heatmap
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 scripts/build-header.py ${{ github.repository_owner }}
           python3 scripts/build-contrib.py ${{ github.repository_owner }}
