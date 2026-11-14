@@ -4,9 +4,18 @@ The big name is ANSI Shadow lettering drawn cell by cell (blocks as rects, box-d
 so the grid stays aligned whatever monospace font the viewer has. The animation is SMIL with fill="freeze"
 and every element's base value is its final state, so a renderer without animation shows the finished frame.
 
-    python3 scripts/build-header.py
+The language bars come from the GitHub API: bytes per language across the user's own (non-fork) repos created in
+the last two years, so the header shows what the code on GitHub is actually written in.
+
+    GITHUB_TOKEN=... python3 scripts/build-header.py [user]
 """
+import json
 import math
+import os
+import subprocess
+import urllib.request
+from collections import Counter
+from datetime import date, timedelta
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -14,7 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 FONT = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', monospace"
 W = 830
-T = 7.0  # every timeline animation runs 0..T and freezes on its final value
+T = 8.0  # every timeline animation runs 0..T and freezes on its final value
 
 LETTERS = {
     "Y": ["██╗   ██╗", "╚██╗ ██╔╝", " ╚████╔╝ ", "  ╚██╔╝  ", "   ██║   ", "   ╚═╝   "],
@@ -38,25 +47,42 @@ THEMES = {
                   rule="#eaeef2", scan="#000000"),
 }
 
-# Terminal transcript. ("cmd", text) is typed after a prompt; ("out", segments) prints at once.
-LINES = [
-    ("cmd", "whoami"),
-    ("out", [("name", "Yaroslav Pakhaliuk"), ("dim", " (aka Yarik Leto)")]),
-    ("cmd", "cat experience.log"),
-    ("out", [("dim", "[wix] "), ("out", "built "), ("hl", "LLM tools"),
-             ("out", " for PR review and developer support, grounded by a "), ("hl", "RAG pipeline")]),
-    ("out", [("dim", "[wix] "), ("hl", "5+ years"), ("out", " on Server Infrastructure: serverless dev tools for "),
-             ("hl", "1,000+"), ("out", " developers")]),
-    ("out", [("dim", "[wix] "), ("out", "built the serverless console to run, manage and debug "), ("hl", "1,000+"),
-             ("out", " apps")]),
-    ("out", [("dim", "[wix] "), ("out", "local dev CLI cut the edit-test cycle from "), ("hl", "minutes to seconds")]),
-    ("cmd", [("cmd", "ships --with "), ("hl", "claude-code codex cursor")]),
-    ("cmd", "ls ~/open-source"),
-    ("out", [("name", "claude-teacher-plugin"), ("dim", " ("), ("hl", "15"), ("star", " "), ("dim", ")   "),
-             ("name", "claude-agent-teams"), ("dim", " ("), ("hl", "npm"), ("dim", ")   "),
-             ("name", "claude-profile"), ("dim", " ("), ("hl", "444 tests"), ("dim", ")")]),
-    ("prompt", ""),
-]
+# Terminal transcript. ("cmd", text) is typed after a prompt; ("out", segments) prints at once;
+# ("bar", (language, percent)) prints a language bar.
+def transcript(langs: list[tuple[str, float]]) -> list:
+    return [
+        ("cmd", "whoami"),
+        ("out", [("name", "Yarik Leto")]),
+        ("cmd", "ls ~/open-source"),
+        ("out", [("name", "claude-teacher-plugin"), ("dim", " ("), ("hl", "15"), ("star", " "), ("dim", ")   "),
+                 ("name", "claude-profile"), ("dim", " ("), ("hl", "12"), ("star", " "), ("dim", ")")]),
+        ("out", [("name", "math-academy-glass"), ("dim", " (Chrome Web Store, rated "), ("hl", "5.0"), ("dim", ")")]),
+        ("cmd", "languages --since 2y --top 5"),
+        *[("bar", lang) for lang in langs],
+        ("cmd", [("cmd", "ships --to "), ("hl", "npm homebrew chrome-web-store"), ("cmd", " --with "),
+                 ("hl", "claude-code codex cursor")]),
+        ("prompt", ""),
+    ]
+
+
+def gh_get(path: str) -> object:
+    tok = os.environ.get("GITHUB_TOKEN") or subprocess.run(
+        ["gh", "auth", "token"], capture_output=True, text=True, check=True).stdout.strip()
+    req = urllib.request.Request(f"https://api.github.com/{path}", headers={"Authorization": f"bearer {tok}"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.load(resp)
+
+
+def languages(login: str, top: int = 5) -> list[tuple[str, float]]:
+    since = (date.today() - timedelta(days=730)).isoformat()
+    total = Counter()
+    for repo in gh_get(f"users/{login}/repos?per_page=100&type=owner"):
+        if repo["fork"] or repo["created_at"][:10] < since:
+            continue
+        total.update(gh_get(f"repos/{login}/{repo['name']}/languages"))
+    s = sum(total.values())
+    return [(name, 100 * n / s) for name, n in total.most_common(top)]
+
 
 # Layout
 COL, ROW = 9, 18                       # ASCII-art cell size
@@ -64,7 +90,7 @@ ART_TOP = 62
 TAG_Y = 198
 TERM_X, TERM_Y, LINE_H = 40, 244, 22  # first terminal baseline
 FS, ADV = 13.5, 8.1                    # terminal font size and the advance every line is fitted to (0.6em)
-H = TERM_Y + (len(LINES) - 1) * LINE_H + 34
+BAR_LABEL, BAR_CELLS = 12, 20          # language name column width; one bar cell = 5%
 
 
 def kt(t: float) -> str:
@@ -149,14 +175,36 @@ def stars(segments: list[tuple[str, str]], y: float, theme: dict) -> str:
     return "".join(out)
 
 
-def terminal(theme: dict) -> tuple[str, str, float]:
+def bar(pct: float, y: float, theme: dict) -> str:
+    """A shaded ASCII bar drawn as cells: full cells for the share, faint dotted cells for the rest."""
+    full = max(1, round(pct / 100 * BAR_CELLS))
+    x0, top = TERM_X + BAR_LABEL * ADV, y - 11
+    cells = []
+    for i in range(BAR_CELLS):
+        x = x0 + i * ADV
+        if i < full:
+            cells.append(f'<rect x="{x + 0.6:.2f}" y="{top:.2f}" width="{ADV - 1.2:.2f}" height="12" fill="url(#block)"/>')
+        else:
+            cells.append(f'<rect x="{x + ADV / 2 - 1:.2f}" y="{top + 5:.2f}" width="2" height="2" fill="{theme["rule"]}"/>')
+    return "".join(cells)
+
+
+def terminal(lines: list, theme: dict) -> tuple[str, str, float]:
     defs, body = [], []
     t = 1.6                       # the first prompt appears after the name and tagline
     cursor = [(0, 0.0, 0.0)]      # (time, x, y) for the cursor's top-left
-    for n, (kind, payload) in enumerate(LINES):
+    for n, (kind, payload) in enumerate(lines):
         y = TERM_Y + n * LINE_H
         extra = ""
-        if kind == "out":
+        if kind == "bar":
+            name, pct = payload
+            text = f"{name:<{BAR_LABEL}}" + " " * BAR_CELLS + f" {pct:>3.0f}%"
+            content = (f'<tspan fill="{theme["out"]}">{escape(f"{name:<{BAR_LABEL}}")}</tspan>{" " * BAR_CELLS}'
+                       f'<tspan fill="{theme["hl"]}" font-weight="700">{pct:>4.0f}%</tspan>')
+            extra = bar(pct, y, theme)
+            reveal = [(0, 0), (t, 0), (t + 0.25, len(text) * ADV + 6)]
+            t += 0.12
+        elif kind == "out":
             text = "".join(s for _, s in payload)
             content = tspans(payload, theme)
             extra = stars(payload, y, theme)
@@ -173,11 +221,11 @@ def terminal(theme: dict) -> tuple[str, str, float]:
             for k in range(1, len(typed) + 1):
                 reveal.append((t, (2 + k) * ADV))
                 cursor.append((t, TERM_X + (2 + k) * ADV, y - 12))
-                t += 0.028
+                t += 0.022
             t += 0.2
         assert len(text) * ADV < W - 2 * TERM_X, f"line too long: {text}"
         defs.append(f'<clipPath id="ln{n}"><rect x="{TERM_X - 2}" y="{y - 15}" height="{LINE_H}" '
-                    f'width="{reveal[-1][1] + 6:g}">{timeline("width", reveal, discrete=kind != "out")}</rect></clipPath>')
+                    f'width="{reveal[-1][1] + 6:g}">{timeline("width", reveal, discrete=kind not in ("out", "bar"))}</rect></clipPath>')
         length = f' textLength="{len(text) * ADV:g}" lengthAdjust="spacing"' if text.strip() != "$" else ""
         body.append(f'<g clip-path="url(#ln{n})"><text x="{TERM_X}" y="{y}"{length} xml:space="preserve">{content}</text>'
                     f'{extra}</g>')
@@ -197,10 +245,11 @@ def terminal(theme: dict) -> tuple[str, str, float]:
     return "".join(defs), "".join(body), final_t
 
 
-def build(name: str) -> str:
+def build(name: str, lines: list) -> str:
     th = THEMES[name]
+    H = TERM_Y + (len(lines) - 1) * LINE_H + 34
     art_defs, art_body = art(th)
-    term_defs, term_body, _ = terminal(th)
+    term_defs, term_body, _ = terminal(lines, th)
     tagline = "Senior Software Engineer, ex-Wix"
     tag_anim = timeline("opacity", [(0, 0), (0.9, 0), (1.4, 1)])
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" font-family="{FONT}">
@@ -223,6 +272,8 @@ def build(name: str) -> str:
 
 
 if __name__ == "__main__":
+    import sys
+    lines = transcript(languages(sys.argv[1] if len(sys.argv) > 1 else "yarikleto"))
     for theme in THEMES:
-        (ROOT / f"header-{theme}.svg").write_text(build(theme), encoding="utf-8")
+        (ROOT / f"header-{theme}.svg").write_text(build(theme, lines), encoding="utf-8")
         print(f"wrote header-{theme}.svg")
