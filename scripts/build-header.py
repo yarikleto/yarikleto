@@ -12,6 +12,7 @@ the last two years, so the header shows what the code on GitHub is actually writ
 import json
 import math
 import os
+import re
 import subprocess
 import urllib.request
 from collections import Counter
@@ -49,14 +50,12 @@ THEMES = {
 
 # Terminal transcript. ("cmd", text) is typed after a prompt; ("out", segments) prints at once;
 # ("bar", (language, percent)) prints a language bar.
-def transcript(langs: list[tuple[str, float]]) -> list:
+def transcript(login: str, langs: list[tuple[str, float]]) -> list:
     return [
         ("cmd", "whoami"),
         ("out", [("name", "Yarik Leto")]),
-        ("cmd", "ls ~/open-source"),
-        ("out", [("name", "claude-teacher-plugin"), ("dim", " ("), ("hl", "15"), ("star", " "), ("dim", ")   "),
-                 ("name", "claude-profile"), ("dim", " ("), ("hl", "12"), ("star", " "), ("dim", ")")]),
-        ("out", [("name", "math-academy-glass"), ("dim", " (Chrome Web Store, rated "), ("hl", "5.0"), ("dim", ")")]),
+        ("cmd", "ls ~/open-source --pinned"),
+        *[("out", line) for line in pin_lines(pinned(login))],
         ("cmd", "languages --since 2y --top 5"),
         *[("bar", lang) for lang in langs],
         ("cmd", [("cmd", "ships --to "), ("hl", "npm homebrew chrome-web-store"), ("cmd", " --with "),
@@ -65,10 +64,78 @@ def transcript(langs: list[tuple[str, float]]) -> list:
     ]
 
 
-def gh_get(path: str) -> object:
-    tok = os.environ.get("GITHUB_TOKEN") or subprocess.run(
+# Pinned repos that ship to a store: show the store rating instead of GitHub stars.
+STORES = {
+    "math-academy-glass": "https://chromewebstore.google.com/detail/math-academy-glass/lmejjnljjohlghejbclappoijncmbomi",
+}
+PIN_WIDTH = 88  # characters per terminal line
+MIN_STARS = 5   # below this, a star count reads as weak, so show the name alone
+
+
+def pinned(login: str) -> list[tuple[str, int]]:
+    """The profile's pinned repos, in pin order, with their star counts."""
+    query = ("query($login: String!) { user(login: $login) { pinnedItems(first: 6, types: REPOSITORY) "
+             "{ nodes { ... on Repository { name stargazerCount } } } } }")
+    nodes = gh_graphql(query, {"login": login})["user"]["pinnedItems"]["nodes"]
+    return [(n["name"], n["stargazerCount"]) for n in nodes]
+
+
+def pin_segments(name: str, stars: int) -> list[tuple[str, str]]:
+    rating = store_rating(STORES[name]) if name in STORES else None
+    if rating:
+        return [("name", name), ("dim", " (Chrome Web Store, rated "), ("hl", rating), ("dim", ")")]
+    if stars >= MIN_STARS:
+        return [("name", name), ("dim", " ("), ("hl", str(stars)), ("star", " "), ("dim", ")")]
+    return [("name", name)]
+
+
+def pin_lines(pins: list[tuple[str, int]]) -> list[list[tuple[str, str]]]:
+    """Packs the pinned repos into terminal lines, three spaces apart."""
+    lines, line = [], []
+    for name, stars in pins:
+        segs = pin_segments(name, stars)
+        width = sum(len(text) for _, text in line + segs) + (3 if line else 0)
+        if line and width > PIN_WIDTH:
+            lines.append(line)
+            line = []
+        line = line + [("dim", "   ")] + segs if line else segs
+    return lines + [line] if line else lines
+
+
+def store_rating(url: str) -> str | None:
+    """The extension's average rating from its Chrome Web Store page, or None if the page can't be read.
+
+    The listing's own rating is the first "N.N (K ratings)" on the page; related extensions come after it.
+    """
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            page = resp.read().decode("utf-8", "replace")
+    except OSError:
+        return None
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+    m = re.search(r"(\d\.\d) \( ?\d+ ratings? ?\)", text)
+    return m.group(1) if m else None
+
+
+def token() -> str:
+    return os.environ.get("GITHUB_TOKEN") or subprocess.run(
         ["gh", "auth", "token"], capture_output=True, text=True, check=True).stdout.strip()
-    req = urllib.request.Request(f"https://api.github.com/{path}", headers={"Authorization": f"bearer {tok}"})
+
+
+def gh_graphql(query: str, variables: dict) -> dict:
+    req = urllib.request.Request("https://api.github.com/graphql",
+                                 data=json.dumps({"query": query, "variables": variables}).encode(),
+                                 headers={"Authorization": f"bearer {token()}", "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        body = json.load(resp)
+    if body.get("errors"):
+        raise SystemExit(f"GitHub API error: {body['errors']}")
+    return body["data"]
+
+
+def gh_get(path: str) -> object:
+    req = urllib.request.Request(f"https://api.github.com/{path}", headers={"Authorization": f"bearer {token()}"})
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.load(resp)
 
@@ -273,7 +340,8 @@ def build(name: str, lines: list) -> str:
 
 if __name__ == "__main__":
     import sys
-    lines = transcript(languages(sys.argv[1] if len(sys.argv) > 1 else "yarikleto"))
+    login = sys.argv[1] if len(sys.argv) > 1 else "yarikleto"
+    lines = transcript(login, languages(login))
     for theme in THEMES:
         (ROOT / f"header-{theme}.svg").write_text(build(theme, lines), encoding="utf-8")
         print(f"wrote header-{theme}.svg")
