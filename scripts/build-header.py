@@ -201,10 +201,10 @@ def build(name: str) -> str:
     th = THEMES[name]
     art_defs, art_body = art(th)
     term_defs, term_body, _ = terminal(th)
-    tagline = "Senior Full-Stack Engineer building AI developer tools"
+    tagline = "Senior Full-Stack Engineer, ex-Wix"
     tag_anim = timeline("opacity", [(0, 0), (0.9, 0), (1.4, 1)])
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" font-family="{FONT}">
-<title>Yaroslav Pakhaliuk (Yarik Leto), Senior Full-Stack Engineer building AI developer tools</title>
+<title>Yaroslav Pakhaliuk (Yarik Leto), Senior Full-Stack Engineer, ex-Wix</title>
 <defs>{art_defs}{term_defs}
 <pattern id="scan" width="4" height="3" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="{th["scan"]}" opacity="0.025"/></pattern>
 </defs>
