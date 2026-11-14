@@ -1,0 +1,29 @@
+name: ASCII header and activity
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build header and contribution heatmap
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/build-header.py ${{ github.repository_owner }}
+          python3 scripts/build-contrib.py ${{ github.repository_owner }}
+      - name: Commit & Push
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add header-*.svg contrib-*.svg
+          if git commit -m "update ASCII header and activity"; then
+            git push
+          fi
