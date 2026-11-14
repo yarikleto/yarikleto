@@ -6,6 +6,7 @@ and every element's base value is its final state, so a renderer without animati
 
     python3 scripts/build-header.py
 """
+import math
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -13,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 FONT = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', monospace"
 W = 830
-T = 6.6  # every timeline animation runs 0..T and freezes on its final value
+T = 7.0  # every timeline animation runs 0..T and freezes on its final value
 
 LETTERS = {
     "Y": ["██╗   ██╗", "╚██╗ ██╔╝", " ╚████╔╝ ", "  ╚██╔╝  ", "   ██║   ", "   ╚═╝   "],
@@ -42,16 +43,18 @@ LINES = [
     ("cmd", "whoami"),
     ("out", [("name", "Yaroslav Pakhaliuk"), ("dim", " (aka Yarik Leto)")]),
     ("cmd", "cat experience.log"),
+    ("out", [("dim", "[wix] "), ("out", "built "), ("hl", "LLM tools"),
+             ("out", " for PR review and developer support, grounded by a "), ("hl", "RAG pipeline")]),
     ("out", [("dim", "[wix] "), ("hl", "5+ years"), ("out", " on Server Infrastructure: serverless dev tools for "),
              ("hl", "1,000+"), ("out", " developers")]),
     ("out", [("dim", "[wix] "), ("out", "built the serverless console to run, manage and debug "), ("hl", "1,000+"),
              ("out", " apps")]),
     ("out", [("dim", "[wix] "), ("out", "local dev CLI cut the edit-test cycle from "), ("hl", "minutes to seconds")]),
-    ("out", [("dim", "[wix] "), ("out", "gRPC streaming · Server-Sent Events · AWS DynamoDB · LLM tools with RAG")]),
+    ("cmd", [("cmd", "ships --with "), ("hl", "claude-code codex cursor")]),
     ("cmd", "ls ~/open-source"),
-    ("out", [("name", "claude-teacher-plugin"), ("dim", " ("), ("hl", "15 stars"), ("dim", ")   "),
-             ("name", "claude-profile"), ("dim", " ("), ("hl", "444 tests"), ("dim", ")   "),
-             ("name", "claude-agent-teams"), ("dim", " ("), ("hl", "npm"), ("dim", ")")]),
+    ("out", [("name", "claude-teacher-plugin"), ("dim", " ("), ("hl", "15"), ("star", " "), ("dim", ")   "),
+             ("name", "claude-agent-teams"), ("dim", " ("), ("hl", "npm"), ("dim", ")   "),
+             ("name", "claude-profile"), ("dim", " ("), ("hl", "444 tests"), ("dim", ")")]),
     ("prompt", ""),
 ]
 
@@ -103,9 +106,9 @@ def art(theme: dict) -> tuple[str, str]:
     defs, body = [], []
     for i, row in enumerate(rows):
         y = ART_TOP + i * ROW
-        start = 0.15 + i * 0.1
+        start = 0.15 + i * 0.08
         defs.append(f'<clipPath id="art{i}"><rect x="{x0 - 2:g}" y="{y - 1:g}" height="{ROW + 2:g}" width="{width + 4:g}">'
-                    f'{timeline("width", [(0, 0), (start, 0), (start + 0.7, width + 4)])}</rect></clipPath>')
+                    f'{timeline("width", [(0, 0), (start, 0), (start + 0.6, width + 4)])}</rect></clipPath>')
         rects, paths = [], []
         for j, ch in enumerate(row):
             x = x0 + j * COL
@@ -124,41 +127,62 @@ def art(theme: dict) -> tuple[str, str]:
 def tspans(segments: list[tuple[str, str]], theme: dict) -> str:
     out = []
     for kind, text in segments:
-        color = {"name": theme["cmd"], "hl": theme["hl"], "dim": theme["dim"], "out": theme["out"]}[kind]
+        if kind == "star":  # a blank cell; star() draws the glyph, since font stars render tiny
+            out.append(" ")
+            continue
+        color = {"name": theme["cmd"], "cmd": theme["cmd"], "hl": theme["hl"], "dim": theme["dim"],
+                 "out": theme["out"]}[kind]
         weight = ' font-weight="700"' if kind in ("name", "hl") else ""
         out.append(f'<tspan fill="{color}"{weight}>{escape(text)}</tspan>')
     return "".join(out)
 
 
+def stars(segments: list[tuple[str, str]], y: float, theme: dict) -> str:
+    out, col = [], 0
+    for kind, text in segments:
+        if kind == "star":
+            cx, cy, r = TERM_X + col * ADV + ADV / 2, y - 4.6, 5.2
+            pts = " ".join(f"{cx + (r if i % 2 == 0 else r * 0.45) * math.sin(i * math.pi / 5):.2f},"
+                           f"{cy - (r if i % 2 == 0 else r * 0.45) * math.cos(i * math.pi / 5):.2f}" for i in range(10))
+            out.append(f'<polygon points="{pts}" fill="{theme["hl"]}"/>')
+        col += len(text)
+    return "".join(out)
+
+
 def terminal(theme: dict) -> tuple[str, str, float]:
     defs, body = [], []
-    t = 2.0                       # the first prompt appears after the name and tagline
+    t = 1.6                       # the first prompt appears after the name and tagline
     cursor = [(0, 0.0, 0.0)]      # (time, x, y) for the cursor's top-left
     for n, (kind, payload) in enumerate(LINES):
         y = TERM_Y + n * LINE_H
+        extra = ""
         if kind == "out":
             text = "".join(s for _, s in payload)
             content = tspans(payload, theme)
+            extra = stars(payload, y, theme)
             reveal = [(0, 0), (t, 0), (t + 0.12, len(text) * ADV + 6)]
             t += 0.16
         else:
-            text = "$ " + payload
-            content = (f'<tspan fill="{theme["prompt"]}" font-weight="700">$</tspan>'
-                       f'<tspan fill="{theme["cmd"]}"> {escape(payload)}</tspan>')
+            segments = [("cmd", payload)] if isinstance(payload, str) else payload
+            typed = "".join(s for _, s in segments)
+            text = "$ " + typed
+            content = f'<tspan fill="{theme["prompt"]}" font-weight="700">$</tspan> {tspans(segments, theme)}'
             reveal = [(0, 0), (t, 2 * ADV)]
             cursor.append((t, TERM_X + 2 * ADV, y - 12))
-            t += 0.35
-            for k in range(1, len(payload) + 1):
+            t += 0.2
+            for k in range(1, len(typed) + 1):
                 reveal.append((t, (2 + k) * ADV))
                 cursor.append((t, TERM_X + (2 + k) * ADV, y - 12))
-                t += 0.05
-            t += 0.3
+                t += 0.028
+            t += 0.2
         assert len(text) * ADV < W - 2 * TERM_X, f"line too long: {text}"
         defs.append(f'<clipPath id="ln{n}"><rect x="{TERM_X - 2}" y="{y - 15}" height="{LINE_H}" '
                     f'width="{reveal[-1][1] + 6:g}">{timeline("width", reveal, discrete=kind != "out")}</rect></clipPath>')
         length = f' textLength="{len(text) * ADV:g}" lengthAdjust="spacing"' if text.strip() != "$" else ""
-        body.append(f'<text x="{TERM_X}" y="{y}" clip-path="url(#ln{n})"{length} xml:space="preserve">{content}</text>')
+        body.append(f'<g clip-path="url(#ln{n})"><text x="{TERM_X}" y="{y}"{length} xml:space="preserve">{content}</text>'
+                    f'{extra}</g>')
     final_t = cursor[-1][0]
+    assert final_t < T - 0.3, f"animation runs past T: {final_t:.2f}s"
     xs = [(c[0], c[1]) for c in cursor[1:]]
     ys = [(c[0], c[2]) for c in cursor[1:]]
     first = cursor[1][0]
@@ -177,8 +201,8 @@ def build(name: str) -> str:
     th = THEMES[name]
     art_defs, art_body = art(th)
     term_defs, term_body, _ = terminal(th)
-    tagline = "Senior Full-Stack Engineer · React · TypeScript · Node.js"
-    tag_anim = timeline("opacity", [(0, 0), (1.0, 0), (1.5, 1)])
+    tagline = "Senior Full-Stack Engineer · LLM tools · AI agents · TypeScript · Node.js"
+    tag_anim = timeline("opacity", [(0, 0), (0.9, 0), (1.4, 1)])
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" font-family="{FONT}">
 <title>Yaroslav Pakhaliuk (Yarik Leto), Senior Full-Stack Engineer</title>
 <defs>{art_defs}{term_defs}
